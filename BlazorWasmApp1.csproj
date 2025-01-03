@@ -8,6 +8,7 @@
 
   <PropertyGroup>
     <BlazorWasmPrerenderingDeleteLoadingContents>true</BlazorWasmPrerenderingDeleteLoadingContents>
+    <BlazorWasmPrerenderingMode>WebAssemblyPrerendered</BlazorWasmPrerenderingMode>
   </PropertyGroup>
 
   <ItemGroup>
