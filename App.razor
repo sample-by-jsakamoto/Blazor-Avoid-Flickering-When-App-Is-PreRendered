@@ -1,4 +1,6 @@
-﻿@inject HttpClient Http
+﻿@implements IDisposable
+@inject HttpClient Http
+@inject PersistentComponentState PersistentState
 
 @if (_loremText is not null)
 {
@@ -10,10 +12,26 @@
 {
     private string? _loremText;
 
+    private PersistingComponentStateSubscription _persistingSubscription;
+
     protected override async Task OnInitializedAsync()
     {
-        _loremText = await Http.GetStringAsync("lorem.txt");
+        _persistingSubscription = this.PersistentState.RegisterOnPersisting(() => { this.PersistentState.PersistAsJson(nameof(_loremText), _loremText); return Task.CompletedTask; });
 
-        await Task.Delay(1000); // Emulate a long-running operation
+        if (!this.PersistentState.TryTakeFromJson<string>(nameof(_loremText), out var restored))
+        {
+            _loremText = await Http.GetStringAsync("lorem.txt");
+
+            await Task.Delay(1000); // Emulate a long-running operation
+        }
+        else
+        {
+            _loremText = restored!;
+        }
+    }
+
+    public void Dispose()
+    {
+        _persistingSubscription.Dispose();
     }
 }
